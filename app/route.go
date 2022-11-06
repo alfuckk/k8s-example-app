@@ -1,7 +1,7 @@
 package app
 
 import (
-	"github.com/horzions/k8s-example-app/account"
+	"github.com/horzions/k8s-example-app/app/account"
 	"github.com/horzions/pkg/database"
 	"github.com/horzions/pkg/middleware"
 )
