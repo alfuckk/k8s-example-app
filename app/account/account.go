@@ -1,7 +1,6 @@
 package account
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -37,7 +36,6 @@ func (us *AccountService) Register(c *gin.Context) {
 	validate := validator.New()
 	err = validate.Struct(ra)
 	if err != nil {
-		fmt.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
 		return
 	}
@@ -54,6 +52,7 @@ func (us *AccountService) Register(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"msg": "created failed"})
 		return
 	}
+
 	c.JSON(http.StatusOK, gin.H{"msg": "account created success"})
 }
 
@@ -71,7 +70,6 @@ func (us *AccountService) Login(c *gin.Context) {
 	validate := validator.New()
 	err = validate.Struct(la)
 	if err != nil {
-		fmt.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
 		return
 	}
