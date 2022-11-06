@@ -4,10 +4,12 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
+	"github.com/gin-gonic/gin/binding"
 	"github.com/horzions/pkg/config"
+	"github.com/horzions/pkg/custorm_validator"
 	"github.com/horzions/pkg/jwt"
-	"github.com/horzions/pkg/password"
+	"github.com/horzions/pkg/util"
+
 	"gorm.io/gorm"
 )
 
@@ -15,6 +17,10 @@ type AccountService struct {
 	DB     *gorm.DB
 	Config *config.Config
 	Engine *gin.Engine
+}
+
+func init() {
+	binding.Validator = new(custorm_validator.CustormValidator)
 }
 
 func NewAccount(c *config.Config, e *gin.Engine, db *gorm.DB) *AccountService {
@@ -26,86 +32,78 @@ func NewAccount(c *config.Config, e *gin.Engine, db *gorm.DB) *AccountService {
 	}
 }
 
-func (us *AccountService) Register(c *gin.Context) {
+func (as *AccountService) Register(c *gin.Context) {
 	var ra RegisterAccount
-	err := c.ShouldBindQuery(&ra)
+	err := c.ShouldBindJSON(&ra)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"msg": err})
+		c.JSON(http.StatusBadRequest, gin.H{"msg": util.ParseError(err)})
 		return
 	}
-	validate := validator.New()
-	err = validate.Struct(ra)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"msg": util.ParseError(err)})
 		return
 	}
-	hash, _ := password.HashPassword(ra.Password)
+	hash, _ := util.HashPassword(ra.Password)
 
 	var account Account
-	user := us.DB.Where(&Account{AccountName: ra.AccountName, Email: ra.Email}).Limit(1).Find(&account)
+	user := as.DB.Where(&Account{AccountName: ra.AccountName, Email: ra.Email}).Limit(1).Find(&account)
 	if user.RowsAffected > 0 {
 		c.JSON(http.StatusAccepted, gin.H{"msg": "account exists."})
 		return
 	}
-	result := us.DB.Create(&Account{AccountName: ra.AccountName, Email: ra.Email, Password: hash})
+	result := as.DB.Create(&Account{AccountName: ra.AccountName, Email: ra.Email, Password: hash})
 	if result.Error != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"msg": "created failed"})
+		c.JSON(http.StatusBadRequest, gin.H{"msg": "created failed."})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"msg": "account created success"})
+	c.JSON(http.StatusOK, gin.H{"msg": "account created success."})
 }
 
 func (us *AccountService) ResetPassword(c *gin.Context) {
 
 }
 
-func (us *AccountService) Login(c *gin.Context) {
+func (as *AccountService) Login(c *gin.Context) {
 	var la LoginAccount
-	err := c.ShouldBindQuery(&la)
+	err := c.ShouldBindJSON(&la)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"msg": err})
-		return
-	}
-	validate := validator.New()
-	err = validate.Struct(la)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"msg": util.ParseError(err)})
 		return
 	}
 
 	var account Account
-	result := us.DB.Where(&Account{Email: la.Email}).Limit(1).Find(&account)
+	result := as.DB.Where(&Account{Email: la.Email}).Limit(1).Find(&account)
 	if result.RowsAffected == 0 {
 		c.JSON(http.StatusAccepted, gin.H{"msg": "account invalid."})
 		return
 	}
-	isLogin := password.CheckPasswordHash(la.Password, account.Password)
+	isLogin := util.CheckPasswordHash(la.Password, account.Password)
 
 	if !isLogin {
 		c.JSON(http.StatusAccepted, gin.H{"msg": "password invalid."})
 		return
 	}
-	token, _ := jwt.NewJwt(&us.Config.Server).GenerateJWT(account.Email, account.AccountName)
+	token, _ := jwt.NewJwt(&as.Config.Server).GenerateJWT(account.Email, account.AccountName)
 	c.JSON(http.StatusOK, gin.H{"msg": "login success.", "token": token})
 }
 
-func (us *AccountService) AddAccount(c *gin.Context) {
+func (as *AccountService) AddAccount(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"msg": "add account."})
+}
+
+func (as *AccountService) DeleteAccount(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"msg": "delete account."})
+}
+
+func (as *AccountService) ModifyAccount(c *gin.Context) {
 
 }
 
-func (us *AccountService) DeleteAccount(c *gin.Context) {
+func (as *AccountService) GetAccounts(c *gin.Context) {
 
 }
 
-func (us *AccountService) ModifyAccount(c *gin.Context) {
-
-}
-
-func (us *AccountService) GetAccounts(c *gin.Context) {
-
-}
-
-func (us *AccountService) AccountInfo(c *gin.Context) {
-
+func (as *AccountService) AccountInfo(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"msg": "account info."})
 }
