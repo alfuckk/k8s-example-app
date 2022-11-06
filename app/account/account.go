@@ -7,8 +7,8 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	"github.com/horzions/pkg/config"
 	"github.com/horzions/pkg/custorm_validator"
+	"github.com/horzions/pkg/helper"
 	"github.com/horzions/pkg/jwt"
-	"github.com/horzions/pkg/util"
 
 	"gorm.io/gorm"
 )
@@ -36,14 +36,14 @@ func (as *AccountService) Register(c *gin.Context) {
 	var ra RegisterAccount
 	err := c.ShouldBindJSON(&ra)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"msg": util.ParseError(err)})
+		c.JSON(http.StatusBadRequest, gin.H{"msg": helper.ParseError(err)})
 		return
 	}
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"msg": util.ParseError(err)})
+		c.JSON(http.StatusBadRequest, gin.H{"msg": helper.ParseError(err)})
 		return
 	}
-	hash, _ := util.HashPassword(ra.Password)
+	hash, _ := helper.HashPassword(ra.Password)
 
 	var account Account
 	user := as.DB.Where(&Account{AccountName: ra.AccountName, Email: ra.Email}).Limit(1).Find(&account)
@@ -68,7 +68,7 @@ func (as *AccountService) Login(c *gin.Context) {
 	var la LoginAccount
 	err := c.ShouldBindJSON(&la)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"msg": util.ParseError(err)})
+		c.JSON(http.StatusBadRequest, gin.H{"msg": helper.ParseError(err)})
 		return
 	}
 
@@ -78,7 +78,7 @@ func (as *AccountService) Login(c *gin.Context) {
 		c.JSON(http.StatusAccepted, gin.H{"msg": "account invalid."})
 		return
 	}
-	isLogin := util.CheckPasswordHash(la.Password, account.Password)
+	isLogin := helper.CheckPasswordHash(la.Password, account.Password)
 
 	if !isLogin {
 		c.JSON(http.StatusAccepted, gin.H{"msg": "password invalid."})
