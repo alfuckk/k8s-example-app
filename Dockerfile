@@ -1,25 +1,15 @@
-FROM golang:1.19-buster as builder
+FROM golang:alpine as builder
+
+WORKDIR /app 
+
+COPY . .
+
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o k8s-example-app .
+
+FROM scratch
 
 WORKDIR /app
 
-COPY go.* ./
+COPY --from=builder /app/k8s-example-app /usr/bin/
 
-COPY app.yaml ./
-
-RUN go mod download
-
-COPY . ./
-
-RUN go build -v -o /k8s-example-app
-
-FROM debian:buster-slim
-
-RUN set -x && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
-    ca-certificates && \
-    rm -rf /var/lib/apt/lists/*
-
-COPY --from=builder /app/k8s-example-app /app/k8s-example-app
-  
-EXPOSE 3000
-
-CMD [ "/app/k8s-example-app" ]
+ENTRYPOINT ["k8s-example-app"]
