@@ -1,0 +1,17 @@
+server:
+  port: :3000
+  devMode: release #release or debug
+  appName: 金科
+  jwtKey: k8sgolangapp
+  tokenExp: 1
+
+database:
+  host: mysql-service.default
+  port: 3306
+  name: longforn
+  user: root
+  password: rancher
+  
+log:
+  fileName: app.log
+  filePath: ./log
