@@ -1,14 +1,9 @@
 package main
 
 import (
-	"github.com/horzions/pkg/config"
-	"github.com/horzions/pkg/serve"
+	"github.com/ivh17/k8s-example-app/app"
 )
 
 func main() {
-	config := config.NewYamlConfig("./app.yaml")
-	app := NewApp(config)
-	setMiddlewares(app.Engine)
-	setRoutes(app)
-	serve.NewServe(&config.Server, app.Engine).Run()
+	app.Start()
 }
