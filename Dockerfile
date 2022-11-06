@@ -11,5 +11,6 @@ FROM scratch
 WORKDIR /app
 
 COPY --from=builder /app/k8s-example-app /usr/bin/
+COPY --from=builder /app/app.yaml /usr/bin/
 
 ENTRYPOINT ["k8s-example-app"]
