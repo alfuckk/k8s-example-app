@@ -1,6 +1,6 @@
 FROM golang:alpine as builder
 
-WORKDIR /app 
+WORKDIR /app
 
 COPY . .
 
@@ -10,7 +10,10 @@ FROM scratch
 
 WORKDIR /app
 
-COPY --from=builder /app/k8s-example-app /usr/bin/
-COPY --from=builder /app/app.yaml /usr/bin/
+COPY --from=builder /app/k8s-example-app /app
 
-ENTRYPOINT ["k8s-example-app"]
+COPY --from=builder /app/app.yaml /app
+
+EXPOSE 3000
+
+ENTRYPOINT ["/app/k8s-example-app"]
