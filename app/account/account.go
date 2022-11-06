@@ -4,9 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
 	"github.com/horzions/pkg/config"
-	"github.com/horzions/pkg/custorm_validator"
 	"github.com/horzions/pkg/helper"
 	"github.com/horzions/pkg/jwt"
 
@@ -17,10 +15,6 @@ type AccountService struct {
 	DB     *gorm.DB
 	Config *config.Config
 	Engine *gin.Engine
-}
-
-func init() {
-	binding.Validator = new(custorm_validator.CustormValidator)
 }
 
 func NewAccount(c *config.Config, e *gin.Engine, db *gorm.DB) *AccountService {
@@ -36,11 +30,11 @@ func (as *AccountService) Register(c *gin.Context) {
 	var ra RegisterAccount
 	err := c.ShouldBindJSON(&ra)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"msg": helper.ParseError(err)})
+		c.JSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
 		return
 	}
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"msg": helper.ParseError(err)})
+		c.JSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
 		return
 	}
 	hash, _ := helper.HashPassword(ra.Password)
@@ -68,7 +62,7 @@ func (as *AccountService) Login(c *gin.Context) {
 	var la LoginAccount
 	err := c.ShouldBindJSON(&la)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"msg": helper.ParseError(err)})
+		c.JSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
 		return
 	}
 
