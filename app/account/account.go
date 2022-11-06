@@ -33,10 +33,6 @@ func (as *AccountService) Register(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
 		return
 	}
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
-		return
-	}
 	hash, _ := helper.HashPassword(ra.Password)
 
 	var account Account
