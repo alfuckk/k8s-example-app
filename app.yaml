@@ -6,7 +6,7 @@ server:
   tokenExp: 1
 
 database:
-  host: mysql-service.default
+  host: mysql.default
   port: 3306
   name: longhorn
   user: root

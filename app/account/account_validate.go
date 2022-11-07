@@ -1,12 +1,12 @@
 package account
 
 type RegisterAccount struct {
-	AccountName string `json:"account_name" validate:"required"`
-	Email       string `json:"email" validate:"required,email"`
-	Password    string `json:"password" validate:"required"`
+	AccountName string `json:"account_name"  binding:"required"`
+	Email       string `json:"email" binding:"required,email"`
+	Password    string `json:"password" binding:"required"`
 }
 
 type LoginAccount struct {
-	Email    string `json:"email" validate:"required,email"`
-	Password string `json:"password" validate:"required"`
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required"`
 }
